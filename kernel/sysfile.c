@@ -85,7 +85,8 @@ sys_write(void)
   struct file *f;
   int n;
   uint64 p;
-  
+
+  printf("[KERNEL] sys_write invoked\n");
   argaddr(1, &p);
   argint(2, &n);
   if(argfd(0, 0, &f) < 0)

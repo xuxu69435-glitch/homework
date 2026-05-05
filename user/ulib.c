@@ -3,7 +3,35 @@
 #include "kernel/fcntl.h"
 #include "kernel/riscv.h"
 #include "kernel/vm.h"
+#include "kernel/syscall.h"
 #include "user/user.h"
+
+// Direct write syscall (bypasses this file's write()) for tracing wrapper.
+static int
+kern_write(int fd, const void *buf, int n)
+{
+  register long a0 __asm__("a0") = fd;
+  register long a1 __asm__("a1") = (long)buf;
+  register long a2 __asm__("a2") = n;
+  register long a7 __asm__("a7") = SYS_write;
+
+  asm volatile(
+    "ecall"
+    : "+r"(a0)
+    : "r"(a1), "r"(a2), "r"(a7)
+    : "memory"
+  );
+  return (int)a0;
+}
+
+int
+write(int fd, const void *buf, int n)
+{
+  static const char msg[] = "[USER] calling write\n";
+
+  kern_write(2, msg, sizeof(msg) - 1);
+  return kern_write(fd, buf, n);
+}
 
 //
 // wrapper so that it's OK if main() does not call exit().
