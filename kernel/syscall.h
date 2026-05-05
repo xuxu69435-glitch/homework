@@ -20,3 +20,6 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+#define SYS_getpid_plus 22
+#define SYS_pcput  23
+#define SYS_pcget  24

@@ -23,6 +23,12 @@ sys_getpid(void)
 }
 
 uint64
+sys_getpid_plus(void)
+{
+  return myproc()->pid + 1;
+}
+
+uint64
 sys_fork(void)
 {
   return kfork();
