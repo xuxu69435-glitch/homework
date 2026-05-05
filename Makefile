@@ -148,6 +148,7 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_getpidtest\
 	$U/_pcdemo\
+	$U/_syncdemo\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

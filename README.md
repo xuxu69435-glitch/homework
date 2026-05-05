@@ -10,6 +10,7 @@
 | 第一层 | 任务2：`scheduler()` 中打印 `[SCHED] switch to pid=...` | 已完成 |
 | 第一层 | 任务3：`kalloc()` 中打印 `[MEM] alloc page at ...` | 已完成 |
 | 第二层（选做） | 新增系统调用 `getpid_plus()`（返回 `pid+1`），用户程序 `getpidtest` 验证 | 已完成 |
+| 第二层（选做） | 任务 3：两进程竞争输出；`syncdemo` 演示无同步交错 vs 管道握手串行化（对照自旋锁保护的临界区思想） | 已完成 |
 | 第三层（挑战） | 内核环形缓冲区 + `spinlock`，`sleep`/`wakeup` 阻塞；系统调用 `pcput`/`pcget`；用户程序 `pcdemo` | 已完成 |
 
 ## 第二层任务实现说明：`getpid_plus`
@@ -19,6 +20,10 @@
 3. 在 `kernel/syscall.c` 中注册该调用。  
 4. 在 `user/usys.pl` 与 `user/user.h` 中增加用户态接口。  
 5. `user/getpidtest.c` 中调用 `getpid()` 与 `getpid_plus()` 并打印结果。
+
+## 第二层任务 3：`syncdemo`（无锁竞争 vs 有同步）
+
+用户程序无法直接使用内核 `spinlock`，本实验用 **双管道 ping-pong** 模拟“进入临界区前必须取得令牌”：父进程写 `p2c` 唤醒子进程打印，子进程再通过 `c2p` 把令牌还给父进程，从而保证每次只有一方输出完整一行。前半段 `nosync()` 则让父子各自快速输出 `P`/`C` 字符，便于在 QEMU 里观察 **交错乱序** 与 **严格交替** 的差异。
 
 ## 第三层任务实现说明：生产者–消费者
 
@@ -51,4 +56,8 @@ make
 make qemu
 ```
 
-在 shell 中可运行：`getpidtest`、`pcdemo`。退出 QEMU：按 `Ctrl-a` 再按 `x`（与 xv6 文档一致）。
+在 shell 中可运行：`getpidtest`、`pcdemo`、`syncdemo`。退出 QEMU：按 `Ctrl-a` 再按 `x`（与 xv6 文档一致）。
+
+### 关于“运行截图”
+
+仓库在无图形 QEMU 环境下整理；验收时可在本机运行 `make qemu`，对上述命令 **截屏终端窗口**，或将控制台文本复制到实验报告。截图对应位置：执行 `getpidtest` 的一屏、`pcdemo` 消费 1–8 的一屏、`syncdemo` 两段输出各一屏即可。
